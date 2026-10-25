@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OG 感官品评</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1f2a24;--mute:#6b746e;--line:#e3e0d8;--acc:#2f6b4f;--acc2:#e8f1ec;--warn:#b5462f;--chip:#f0eee8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;-webkit-text-size-adjust:100%}
+header{background:var(--acc);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}
+header b{font-size:17px}header small{display:block;opacity:.85;font-size:13px}
+main{max-width:720px;margin:0 auto;padding:12px 16px 120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+h2{font-size:18px;margin:4px 0 10px}h3{font-size:16px;margin:14px 0 6px;color:var(--acc)}
+label{display:block;font-size:14px;color:var(--mute);margin:10px 0 4px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+textarea{min-height:70px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 140px}
+button{font:inherit;border:0;border-radius:10px;padding:11px 16px;background:var(--acc);color:#fff;cursor:pointer}
+button.ghost{background:var(--acc2);color:var(--acc)}button.danger{background:#fbeae6;color:var(--warn)}
+button:disabled{opacity:.45}
+.big{display:block;width:100%;padding:16px;font-size:17px;margin:10px 0}
+.mute{color:var(--mute);font-size:13px}.warn{color:var(--warn)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 11px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:14px;cursor:pointer;user-select:none}
+.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.attr{padding:10px 0;border-top:1px dashed var(--line)}
+.attr:first-of-type{border-top:0}
+.attr .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.attr .name{font-weight:600}.attr .code{font-size:11px;color:var(--mute);font-weight:400;margin-left:4px}
+.attr .val{min-width:56px;text-align:right;font-weight:700;color:var(--acc)}
+.attr.untouched .val{color:var(--warn);font-weight:400;font-size:13px}
+input[type=range]{width:100%;margin:8px 0 2px;accent-color:var(--acc);height:28px}
+.attr.untouched input[type=range]{opacity:.5}
+.anch{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);gap:4px}
+.anch span{flex:1}.anch span:nth-child(2){text-align:center}.anch span:nth-child(3){text-align:center}.anch span:last-child{text-align:right}
+.scale{display:grid;gap:4px;margin-top:6px}
+.scale.s9{grid-template-columns:repeat(9,1fr)}.scale.s5{grid-template-columns:repeat(5,1fr)}
+.scale div{border:1px solid var(--line);border-radius:8px;text-align:center;padding:8px 0;cursor:pointer;background:#fff;font-weight:600}
+.scale div.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.scale-lab{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-top:3px}
+.missing{outline:2px solid var(--warn);outline-offset:4px;border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px;text-align:center}
+th{background:var(--chip)}
+.ing td{padding:3px}.ing input{padding:6px;font-size:14px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;z-index:5}
+.bar button{flex:1}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:6px 0 2px}
+.prog i{display:block;height:100%;background:var(--acc)}
+.code-big{font-size:44px;font-weight:800;letter-spacing:4px;color:var(--acc);text-align:center;margin:4px 0}
+.linkbox{word-break:break-all;background:var(--chip);padding:8px;border-radius:8px;font-size:13px}
+#qr{display:flex;justify-content:center;margin:10px 0}#qr img{width:200px;height:200px;image-rendering:pixelated}
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#1f2a24;color:#fff;padding:9px 14px;border-radius:8px;font-size:14px;z-index:9;display:none}
+.aroma-search{margin:6px 0}
+.picked{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.fam{font-size:12px;color:var(--mute);margin:8px 0 3px}
+details summary{cursor:pointer;color:var(--acc);font-size:14px}
+@media print{header,.bar,.noprint{display:none!important}body{background:#fff}.card{border:0}}
+</style>
+</head>
+<body>
+<header><b>OakGenius 感官品评</b><small id="hsub">研发试做 · 盲评打分</small></header>
+<main id="app"></main>
+<div class="toast" id="toast"></div>
+<script src="data.js"></script>
+<script src="qrcode.js"></script>
+<script>
+// ===== 配置 =====
+const SHEETDB = 'https://sheetdb.io/api/v1/22c9btd17ewe2';
+const VERSION = 'v1.0-261025';
+
+// ===== 评分维度（0–10 线性强度，N5 编码；N5 原为 0–5，换算：N5 = 本表分 ÷ 2）=====
+const CORE = [
+  {k:'甜', c:'S-TA-01'}, {k:'酸', c:'S-TA-02'}, {k:'苦', c:'S-TA-03'}, {k:'涩', c:'S-CH-01'},
+  {k:'香气总强度', c:'S-OV-06'}, {k:'口感厚薄（醇厚度）', c:'S-MF-01'},
+  {k:'余韵长度', c:'S-AF-03', a:['吞下即消失','约 10 秒','30 秒以上']},
+  {k:'平衡度', c:'S-OV-08'}
+];
+const TAGS = [
+  {t:'茶', attrs:[{k:'茶味强度', c:'S-OV-01'}]},
+  {t:'奶', attrs:[{k:'乳味强度', c:'S-OV-04'}]},
+  {t:'果', attrs:[{k:'果味强度', c:'S-OV-03'}]},
+  {t:'咖啡', attrs:[{k:'咖啡味强度', c:'S-OV-02'}]},
+  {t:'气泡', attrs:[{k:'气泡刺痛感', c:'S-CH-07'},{k:'气泡细腻度', c:'S-MF-17'}]},
+  {t:'氮气', attrs:[{k:'绵密度', c:'S-MF-04'}]},
+  {t:'奶盖', attrs:[{k:'绵密度', c:'S-MF-04'}]},
+  {t:'姜', attrs:[{k:'姜辣感', c:'S-CH-02'}]}
+];
+const DEPTH = {k:'颜色深浅', c:'S-VI-01', a:['很浅','中等','很深']};
+const HED = [['外观喜好','appearance'],['香气喜好','aroma'],['口味喜好','taste'],['整体喜好','overall']];
+const HED_LAB = ['极不喜欢','很不喜欢','比较不喜欢','有点不喜欢','无所谓','有点喜欢','比较喜欢','很喜欢','极喜欢'];
+const JAR = ['甜度','酸度','主风味浓度','口感厚薄'];
+const JAR_LAB = ['明显不足','稍不足','刚好','稍过','明显过'];
+const hedCol=h=>'个人喜好-'+h.replace('喜好','')+'(1-9)';
+const jarCol=j=>'JAR'+j+'-对美国目标(3=刚好)';
+const BUY_LAB = ['肯定不买','可能不买','不确定','可能会买','肯定会买'];
+
+function allIntensity(){ // 全部可能的强度列（顺序固定，用作表头）
+  const seen=new Set(), out=[];
+  [...CORE, ...TAGS.flatMap(x=>x.attrs), DEPTH].forEach(a=>{const key=a.k+' '+a.c; if(!seen.has(key)){seen.add(key); out.push(a);}});
+  return out;
+}
+const COLS_EVAL = ['提交时间(北京)','提交时间(加州)','场次编号','品评日期','品评人','座位号','盲码','品尝顺序','品类标签','温度',
+  ...allIntensity().map(a=>a.k+' '+a.c),
+  '颜色编码','颜色',
+  '香气1编码','香气1','香气1强度','香气2编码','香气2','香气2强度','香气3编码','香气3','香气3强度',
+  ...HED.map(h=>hedCol(h[0])), ...JAR.map(j=>jarCol(j)), '购买意向(1-5)','评语','记录编号','页面版本'];
+const COLS_SAMPLE = ['登记时间(北京)','登记时间(加州)','场次编号','品评日期','地点','主持人','品评人数','盲码','配方编号','配方版本','产品名称','品类标签','温度','杯量','制作方式','原料规格与用量','糖浆Brix','果料形态','茶底形态','茶浓缩液稀释倍数','是否加冰','冰量g','本次改动','主持人备注','页面版本','测试目的','原型编号','对标美国产品','目标美国售价','是否美国对标品','美国采购原料对应'];
+window.COLS_EVAL=COLS_EVAL; window.COLS_SAMPLE=COLS_SAMPLE;
+
+// ===== 工具函数 =====
+const UNAME=/^[a-z][a-z0-9._-]{1,19}$/;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',2200)}
+function ts(tz){return new Date().toLocaleString('zh-CN',{timeZone:tz,hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).replace(/\//g,'-')}
+function todayCN(){return new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Shanghai'})}
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function b64e(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))))}
+function rid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function anchorsOf(a){const n=(window.N5ANCH||{})[a.c]||[];const x=a.a||n;return (x&&x.some(Boolean))?x:['弱','中','强']}
+// Williams 拉丁方：平衡呈送顺序和前后效应
+function williams(n){
+  const first=[0];let lo=1,hi=n-1;
+  for(let i=1;i<n;i++){ if(i%2){first.push(lo++)} else {first.push(hi--)} }
+  const rows=[];for(let r=0;r<n;r++)rows.push(first.map(x=>(x+r)%n));
+  if(n%2){for(let r=0;r<n;r++)rows.push([...rows[r]].reverse())}
+  return rows;
+}
+function blindCodes(k){const s=new Set();while(s.size<k){const v=String(101+Math.floor(Math.random()*888));if(/^(\d)\1\1$/.test(v)||'123 234 345 456 567 678 789'.includes(v))continue;s.add(v)}return [...s]}
+
+async function post(sheet, rows){
+  const r=await fetch(SHEETDB+'?sheet='+encodeURIComponent(sheet),{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({data:rows})});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json(); if(!(j.created>=1)) throw new Error('未写入');
+  return j;
+}
+// 发送失败的记录存在本机，下次打开自动补交
+function queue(sheet,rows){const q=LS.get('og_queue',[]);q.push({sheet,rows});LS.set('og_queue',q)}
+async function flushQueue(){
+  const q=LS.get('og_queue',[]);if(!q.length)return 0;const left=[];let ok=0;
+  for(const it of q){try{await post(it.sheet,it.rows);ok+=it.rows.length}catch(e){left.push(it)}}
+  LS.set('og_queue',left);return ok;
+}
+
+// ===== 路由 =====
+function route(){
+  const p=new URLSearchParams(location.search);
+  if(p.get('p')){try{return panelStart(b64d(p.get('p')))}catch(e){$('#app').innerHTML='<div class="card warn">链接不完整，请让主持人重新发一次。</div>';return}}
+  home();
+}
+function myRecipes(){return LS.get('og_recipes',[])}
+function home(){
+  $('#hsub').textContent='研发试做 · 盲评打分';
+  const pend=LS.get('og_queue',[]).reduce((s,x)=>s+x.rows.length,0);
+  const ses=LS.get('og_sessions',[]);
+  $('#app').innerHTML=`
+  <div class="card"><h2>选择身份</h2>
+   <button class="big" id="bLead">我是主持人：登记样品、建场次</button>
+   <p class="mute">品评员不用在这里操作，打开主持人发的链接或扫码即可。</p></div>
+  ${pend?`<div class="card warn">本机还有 ${pend} 条记录没交上去。<button class="ghost" id="bFlush">现在补交</button></div>`:''}
+  ${ses.length?`<div class="card"><h3>本机建过的场次</h3>${ses.slice(-8).reverse().map((s,i)=>`<div class="attr"><b>${esc(s.s)}</b> · ${esc(s.d)} · ${s.smp.length} 杯 <button class="ghost" data-i="${ses.length-1-i}" style="float:right;padding:6px 10px">打开</button></div>`).join('')}</div>`:''}
+  <div class="card"><details><summary>品评规则（主持人请先读）</summary>${RULES}</details></div>`;
+  $('#bLead').onclick=()=>leadForm();
+  if($('#bFlush'))$('#bFlush').onclick=async()=>{const n=await flushQueue();toast(n?`已补交 ${n} 条`:'还是没连上，请稍后再试');home()};
+  document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>leadDone(ses[+b.dataset.i]));
+}
+const RULES=`<ol class="mute" style="padding-left:18px">
+<li>每场 3–5 人，同一批人长期固定，先用参照溶液（蔗糖水、柠檬酸水、咖啡因水，浓度见各项下方标注）统一刻度。</li>
+<li>每场不超过 6 杯；杯子只写三位盲码，不写名称和配方；按系统给的顺序上杯，每人顺序不同。</li>
+<li>品评人之间不交流；每杯之间用常温清水漱口、吃一口无盐苏打饼干，间隔 1 分钟以上。</li>
+<li>强度分（0–10）只描述“有多强”，不代表好坏；喜好分（1–9）单独打。内部 3–5 人的喜好分只作方向参考，不代表美国消费者。</li>
+<li>JAR“刚好”量表用来定用量：多数人选“太强/稍强”就减量，选“太弱/稍弱”就加量。</li>
+<li>改配方时只改一个变量，在“本次改动”里写清楚（例：糖浆 25g→20g）。</li></ol>`;
+
+// ===== 主持人：登记 =====
+function leadForm(){
+  $('#hsub').textContent='主持人 · 登记样品';
+  const last=LS.get('og_lead',{});
+  $('#app').innerHTML=`
+  <div class="card"><h2>场次信息</h2>
+   <div class="row"><div><label>品评日期</label><input type="date" id="fD" value="${todayCN()}"></div>
+   <div><label>品评人数</label><select id="fN">${[3,4,5,6].map(n=>`<option ${n==(last.n||5)?'selected':''}>${n}</option>`).join('')}</select></div></div>
+   <div class="row"><div><label>主持人用户名（英文小写，如 amy.wang）</label><input type="text" id="fH" autocapitalize="off" autocomplete="off" value="${esc(last.h||'')}"></div>
+   <div><label>地点</label><input type="text" id="fL" value="${esc(last.l||'深圳研发中心')}"></div></div>
+   <label>测试目的</label><select id="fP"><option>美国产品开发</option><option>深圳测试店验证</option></select>
+   <label>给品评员的美国目标说明（会显示给品评员，不写配方）</label><textarea id="fT" placeholder="例：对标 Starbucks Iced Black Tea Lemonade，美国顾客普遍比国内更能接受甜，目标是清爽、柠檬香明显、茶味不被盖住"></textarea>
+  </div>
+  <div id="smps"></div>
+  <button class="ghost big noprint" id="bAdd">＋ 加一杯样品</button>
+  <div class="bar"><button class="ghost" id="bBack">返回</button><button id="bGo">生成盲码和品评链接</button></div>
+  <datalist id="dlRec">${myRecipes().map(r=>`<option value="${r.code}">${esc(r.name)}</option>`).join('')}</datalist>`;
+  const box=$('#smps');let idx=0;
+  function addSample(){
+    const i=idx++;const el=document.createElement('div');el.className='card smp';el.innerHTML=`
+    <div class="top" style="display:flex;justify-content:space-between"><h2>样品 ${box.children.length+1}</h2><button class="danger" style="padding:6px 10px">删除</button></div>
+    <div class="row"><div><label>配方编号（这台设备登记过的配方会自动带出）</label><input type="text" class="rc" list="dlRec" placeholder="如 OG-T-013"></div>
+    <div><label>配方版本</label><input type="text" class="rv" value="v1"></div></div>
+    <label>产品名称（只给主持人看）</label><input type="text" class="rn">
+    <label>品类标签（决定品评员要打哪些附加项）</label>
+    <div class="chips tags">${TAGS.map(t=>`<span class="chip" data-t="${t.t}">${t.t}</span>`).join('')}</div>
+    <div class="row"><div><label>温度</label><select class="rt"><option>冰</option><option>冰凉无冰</option><option>常温</option><option>温</option><option>热</option></select></div>
+    <div><label>杯量</label><input type="text" class="rs" value="500ml"></div>
+    <div><label>制作方式</label><select class="rm"><option>奶茶机出杯</option><option>手工</option><option>批量预制</option></select></div></div>
+    <label>原料规格与用量（规格写到品种/产区/品牌/批号）</label>
+    <div style="overflow-x:auto"><table class="ing" style="min-width:420px"><thead><tr><th>原料</th><th>规格</th><th style="width:70px">用量</th><th style="width:56px">单位</th><th style="width:30px"></th></tr></thead><tbody></tbody></table></div>
+    <button class="ghost addIng" style="margin-top:6px;padding:6px 10px">＋ 原料</button>
+    <h3>关键参数（必填，用来校准用量）</h3>
+    <div class="row"><div><label>糖浆 Brix（°Bx）</label><input type="number" class="kBrix" step="0.1" placeholder="如 65；不加糖填 0"></div>
+    <div><label>果料形态</label><select class="kFruit"><option value="">请选择</option><option>无果料</option><option>鲜榨果汁</option><option>NFC 果汁</option><option>浓缩还原果汁</option><option>果泥</option><option>果酱</option><option>果干浸泡</option><option>鲜果块</option><option>多种（写在备注）</option></select></div></div>
+    <div class="row"><div><label>茶底形态</label><select class="kTea"><option value="">请选择</option><option>无茶</option><option>浓缩液原液</option><option>浓缩液稀释</option><option>现泡茶汤</option><option>茶粉/抹茶</option><option>多种（写在备注）</option></select></div>
+    <div><label>浓缩液稀释倍数（稀释时必填）</label><input type="text" class="kDil" placeholder="如 1:4"></div></div>
+    <div class="row"><div><label>是否加冰</label><select class="kIce"><option value="">请选择</option><option>加冰</option><option>不加冰</option></select></div>
+    <div><label>冰量 g（加冰时必填）</label><input type="number" class="kIceG" placeholder="如 150"></div></div>
+    <label>本次改动（和上一版比，只改一个变量）</label><input type="text" class="rd" placeholder="例：茶浓缩液 40ml→50ml">
+    <h3>美国目标（来自应用/配方台）</h3>
+    <label>原型编号</label><input type="text" class="pId" placeholder="如 P-0123">
+    <label>对标美国产品（品牌＋产品）</label><input type="text" class="pBench" placeholder="如 Starbucks Iced Black Tea Lemonade">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" class="pIsB" style="width:auto"> 这杯本身就是美国对标品（同场盲测作参照）</label>
+    <label>备注</label><input type="text" class="rx">`;
+    box.appendChild(el);
+    const tb=el.querySelector('tbody');
+    const addIng=(a=['','','','',''])=>{const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" value="${esc(a[0])}"></td><td><input type="text" value="${esc(a[1])}" placeholder="品种/产区/品牌"></td><td><input type="text" value="${esc(a[2])}"></td><td><input type="text" value="${esc(a[3])}"></td><td><span style="cursor:pointer;color:var(--warn)">✕</span></td>`;tr.querySelector('span').onclick=()=>tr.remove();tb.appendChild(tr)};
+    addIng();addIng();addIng();
+    el.querySelector('.addIng').onclick=()=>addIng();
+    el.querySelector('.danger').onclick=()=>{el.remove();renum()};
+    el.querySelectorAll('.tags .chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+    el.querySelector('.rc').addEventListener('change',e=>{
+      // 只调用本机登记过的配方（配方不放进公开网页）
+      const r=myRecipes().find(x=>x.code===e.target.value.trim().toUpperCase());if(!r)return;
+      e.target.value=r.code;el.querySelector('.rn').value=r.name;el.querySelector('.rs').value=r.size;el.querySelector('.rv').value=r.rv||'v1';
+      el.querySelector('.rt').value=r.temp;el.querySelector('.rm').value=r.make;
+      tb.innerHTML='';r.ing.forEach(x=>addIng(x));
+      const k=r.kk||{};el.querySelector('.kBrix').value=k.brix??'';el.querySelector('.kFruit').value=k.fruit||'';el.querySelector('.kTea').value=k.tea||'';el.querySelector('.kDil').value=k.dil||'';el.querySelector('.kIce').value=k.ice||'';el.querySelector('.kIceG').value=k.iceg||'';
+      el.querySelectorAll('.tags .chip').forEach(c=>c.classList.toggle('on',(r.tags||[]).includes(c.dataset.t)));
+      toast('已带出上次登记的内容，请改成这次的版本');
+    });
+  }
+  function renum(){box.querySelectorAll('.smp h2').forEach((h,i)=>h.textContent='样品 '+(i+1))}
+  addSample();addSample();addSample();
+  $('#bAdd').onclick=addSample;$('#bBack').onclick=home;
+  $('#bGo').onclick=async()=>{
+    const d=$('#fD').value,n=+$('#fN').value,h=$('#fH').value.trim().toLowerCase(),l=$('#fL').value.trim(),purpose=$('#fP').value,target=$('#fT').value.trim();
+    const els=[...box.querySelectorAll('.smp')];
+    if(!UNAME.test(h)){toast('主持人用户名只用英文小写、数字、点或横线，2–20 位');$('#fH').focus();return}
+    if(els.length<1){toast('至少一杯样品');return}
+    if(els.length>6){toast('一场最多 6 杯，避免感官疲劳');return}
+    const smp=[];
+    for(const [i,el] of els.entries()){
+      const g=c=>el.querySelector(c).value.trim();
+      const tags=[...el.querySelectorAll('.tags .chip.on')].map(c=>c.dataset.t);
+      const ing=[...el.querySelectorAll('tbody tr')].map(tr=>[...tr.querySelectorAll('input')].map(x=>x.value.trim())).filter(r=>r[0]);
+      if(!g('.rc')&&!g('.rn')){toast(`样品 ${i+1} 要填配方编号或名称`);return}
+      if(!ing.length){toast(`样品 ${i+1} 要填原料`);return}
+      const kk={brix:g('.kBrix'),fruit:g('.kFruit'),tea:g('.kTea'),dil:g('.kDil'),ice:g('.kIce'),iceg:g('.kIceG')};
+      const need=[];if(kk.brix==='')need.push('糖浆 Brix');if(!kk.fruit)need.push('果料形态');if(!kk.tea)need.push('茶底形态');
+      if(kk.tea==='浓缩液稀释'&&!kk.dil)need.push('稀释倍数');if(!kk.ice)need.push('是否加冰');if(kk.ice==='加冰'&&!kk.iceg)need.push('冰量');
+      if(need.length){toast(`样品 ${i+1} 还要填：${need.join('、')}`);el.scrollIntoView({behavior:'smooth'});return}
+      smp.push({rc:g('.rc').toUpperCase(),rv:g('.rv'),rn:g('.rn'),tags,temp:g('.rt'),size:g('.rs'),make:g('.rm'),ing,kk,diff:g('.rd'),note:g('.rx'),pid:g('.pId'),bench:g('.pBench'),isb:el.querySelector('.pIsB').checked});
+    }
+    if(purpose==='美国产品开发'&&!smp.some(s=>s.isb)&&!leadForm._warned){leadForm._warned=true;toast('本场没有美国对标品，建议加一杯同场盲测作参照；不加的话再点一次继续');return}
+    leadForm._warned=false;
+    const codes=blindCodes(smp.length);smp.forEach((s,i)=>s.b=codes[i]);
+    const sid='S'+d.slice(2).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,5).toUpperCase();
+    const sess={s:sid,d,n,h,l,smp,purpose,target};
+    LS.set('og_lead',{h,l,n});
+    const mine=myRecipes().filter(x=>!smp.some(s=>s.rc&&s.rc===x.code));
+    smp.filter(s=>s.rc).forEach(s=>mine.push({code:s.rc,rv:s.rv,name:s.rn,size:s.size,temp:s.temp,make:s.make,ing:s.ing,kk:s.kk,tags:s.tags}));
+    LS.set('og_recipes',mine.slice(-200));
+    const rows=smp.map(s=>({'登记时间(北京)':ts('Asia/Shanghai'),'登记时间(加州)':ts('America/Los_Angeles'),'场次编号':sid,'品评日期':d,'地点':l,'主持人':h,'品评人数':n,'盲码':s.b,'配方编号':s.rc,'配方版本':s.rv,'产品名称':s.rn,'品类标签':s.tags.join('、'),'温度':s.temp,'杯量':s.size,'制作方式':s.make,'原料规格与用量':s.ing.map(r=>`${r[0]}｜${r[1]||'规格待填'}｜${r[2]}${r[3]}`).join('\n'),'糖浆Brix':s.kk.brix,'果料形态':s.kk.fruit,'茶底形态':s.kk.tea,'茶浓缩液稀释倍数':s.kk.tea==='浓缩液稀释'?s.kk.dil:'','是否加冰':s.kk.ice,'冰量g':s.kk.ice==='加冰'?s.kk.iceg:'','本次改动':s.diff,'主持人备注':s.note,'测试目的':purpose,'原型编号':s.pid,'对标美国产品':s.bench,'是否美国对标品':s.isb?'是':'否','页面版本':VERSION}));
+    $('#bGo').disabled=true;$('#bGo').textContent='正在保存…';
+    try{await post('样品登记',rows);sess.saved=true}catch(e){queue('样品登记',rows);sess.saved=false}
+    const all=LS.get('og_sessions',[]);all.push(sess);LS.set('og_sessions',all);
+    leadDone(sess);
+  };
+}
+function panelLink(sess){
+  const pub={s:sess.s,d:sess.d,n:sess.n,p:sess.purpose,g:sess.target,smp:sess.smp.map(x=>({b:x.b,t:x.tags,tp:x.temp}))}; // 不含配方
+  return location.origin+location.pathname+'?p='+b64e(pub);
+}
+function leadDone(sess){
+  $('#hsub').textContent='主持人 · '+sess.s;
+  const link=panelLink(sess);const W=williams(sess.smp.length);
+  $('#app').innerHTML=`
+  ${sess.saved===false?'<div class="card warn">样品登记暂时没传上去，已存在本机，回首页可补交。品评照常进行。</div>':''}
+  <div class="card"><h2>场次 ${esc(sess.s)}</h2><p class="mute">${esc(sess.d)} · ${esc(sess.l)} · 主持人 ${esc(sess.h)} · ${sess.n} 人</p>
+  <h3>① 给每杯贴盲码</h3>
+  <table><tr><th>盲码</th><th>配方</th><th>品类</th><th>温度</th></tr>${sess.smp.map(x=>`<tr><td><b style="font-size:18px">${x.b}</b></td><td>${esc(x.rc)} ${esc(x.rv)}<br><span class="mute">${esc(x.rn)}</span></td><td>${esc(x.tags.join('、'))}</td><td>${esc(x.temp)}</td></tr>`).join('')}</table>
+  <h3>② 按座位号上杯（顺序已做平衡）</h3>
+  <table><tr><th>座位</th>${sess.smp.map((_,i)=>`<th>第${i+1}杯</th>`).join('')}</tr>${Array.from({length:sess.n},(_,i)=>`<tr><td>${i+1}号</td>${W[i%W.length].map(j=>`<td>${sess.smp[j].b}</td>`).join('')}</tr>`).join('')}</table>
+  <h3>③ 把链接发到微信群，或让大家扫码</h3>
+  <div id="qr"></div><div class="linkbox">${esc(link)}</div>
+  <div class="row noprint" style="margin-top:10px"><button class="ghost" id="bCopy">复制链接</button><button class="ghost" id="bPrint">打印本页</button></div>
+  </div>
+  <div class="bar"><button class="ghost" id="bHome">回首页</button><button id="bNew">再建一场</button></div>`;
+  try{const q=qrcode(0,'M');q.addData(link);q.make();$('#qr').innerHTML=q.createImgTag(5,8)}catch(e){$('#qr').textContent='（二维码生成失败，请复制链接）'}
+  $('#bCopy').onclick=()=>{navigator.clipboard?.writeText(link).then(()=>toast('已复制'),()=>prompt('复制链接',link))};
+  $('#bPrint').onclick=()=>print();$('#bHome').onclick=home;$('#bNew').onclick=leadForm;
+}
+
+// ===== 品评员 =====
+let P=null;
+function panelStart(pub){
+  $('#hsub').textContent='场次 '+pub.s+' · '+pub.d;
+  const key='og_done_'+pub.s;const done=LS.get(key,null);
+  const names=LS.get('og_names',[]);
+  $('#app').innerHTML=`
+  ${done?`<div class="card">你（${esc(done)}）已经交过这一场。如果要换人在这台手机上评，直接填新的名字。</div>`:''}
+  <div class="card"><h2>开始品评</h2>
+   <label>你的用户名（英文小写，如 amy.wang，每次都用同一个）</label><input type="text" id="pN" autocapitalize="off" autocomplete="off" list="dlN" value="${esc(names[0]||'')}"><datalist id="dlN">${names.map(n=>`<option>${esc(n)}</option>`).join('')}</datalist>
+   <label>座位号（主持人告诉你）</label><div class="scale s5" id="pSeat" style="grid-template-columns:repeat(${pub.n},1fr)">${Array.from({length:pub.n},(_,i)=>`<div data-v="${i+1}">${i+1}</div>`).join('')}</div>
+  </div>
+  <div class="card"><h3>评前须知</h3><ul class="mute" style="padding-left:18px">
+   <li>按页面给的顺序喝，每杯先看、再闻、后尝。</li><li>每杯之间清水漱口，不和别人交流。</li>
+   <li>强度 0–10 只说“有多强”，照实打，这是最重要的数据。</li>
+   <li>${pub.p==='深圳测试店验证'?'本场是深圳测试店验证。':'本场是为<b>美国产品</b>做测试：“对照美国目标”题请按下面的美国目标判断，不按你自己的口味。'}</li>
+   ${pub.g?`<li>美国目标：${esc(pub.g)}</li>`:''}
+   <li>个人喜好分只作内部参考，不代表美国顾客。</li>
+   <li>每项都要拖动一下滑块才算打分（橙色“未打分”会变成数字）。</li></ul></div>
+  <div class="bar"><button id="pGo">开始</button></div>`;
+  let seat=0;
+  document.querySelectorAll('#pSeat div').forEach(d=>d.onclick=()=>{document.querySelectorAll('#pSeat div').forEach(x=>x.classList.remove('on'));d.classList.add('on');seat=+d.dataset.v});
+  $('#pGo').onclick=()=>{
+    const name=$('#pN').value.trim().toLowerCase();
+    if(!UNAME.test(name)){toast('用户名只用英文小写、数字、点或横线，2–20 位');return}if(!seat){toast('请选座位号');return}
+    LS.set('og_names',[name,...names.filter(x=>x!==name)].slice(0,8));
+    const W=williams(pub.smp.length);const order=W[(seat-1)%W.length].map(j=>pub.smp[j]);
+    const saved=LS.get('og_draft_'+pub.s+'_'+name,null);
+    P={pub,name,seat,order,i:0,ans:saved&&saved.seat===seat?saved.ans:order.map(()=>({int:{},aroma:[],hed:{},jar:{},buy:0,color:'',note:''}))};
+    sampleView();
+  };
+}
+function saveDraft(){LS.set('og_draft_'+P.pub.s+'_'+P.name,{seat:P.seat,ans:P.ans})}
+function attrsFor(s){const extra=[];const seen=new Set();TAGS.filter(t=>(s.t||[]).includes(t.t)).forEach(t=>t.attrs.forEach(a=>{if(!seen.has(a.c)){seen.add(a.c);extra.push(a)}}));return extra}
+function slider(a,val){
+  const an=anchorsOf(a);const has=val!==undefined;
+  return `<div class="attr ${has?'':'untouched'}" data-c="${a.c}" data-k="${esc(a.k)}"><div class="top"><span class="name">${esc(a.k)}<span class="code">${a.c}</span></span><span class="val">${has?val:'未打分'}</span></div>
+  <input type="range" min="0" max="10" step="0.5" value="${has?val:5}">
+  <div class="anch"><span>0 无</span><span>2 ${esc(an[0])}</span><span>6 ${esc(an[1])}</span><span>10 ${esc(an[2])}</span></div></div>`;
+}
+function scale(id,n,val,labs){return `<div class="scale s${n}" data-id="${id}">${Array.from({length:n},(_,i)=>`<div data-v="${i+1}" class="${val==i+1?'on':''}">${i+1}</div>`).join('')}</div><div class="scale-lab"><span>${labs[0]}</span><span>${labs[Math.floor(n/2)]}</span><span>${labs[n-1]}</span></div>`}
+function sampleView(){
+  const s=P.order[P.i],A=P.ans[P.i],N=P.order.length;
+  const ex=attrsFor(s);const main=ex.find(a=>/茶味|咖啡味|果味/.test(a.k));
+  $('#hsub').textContent=`${P.name} · ${P.seat}号座 · 场次 ${P.pub.s}`;
+  $('#app').innerHTML=`
+  <div class="card"><div class="mute">第 ${P.i+1} / ${N} 杯</div><div class="prog"><i style="width:${(P.i)/N*100}%"></i></div>
+   <div class="code-big">${s.b}</div><div class="mute" style="text-align:center">${esc(s.tp||'')} · ${esc((s.t||[]).join('、'))}</div></div>
+  <div class="card"><h3>一、看</h3>
+   <label>主色</label><div class="chips" id="cColor">${N5COLOR.map(c=>`<span class="chip ${A.color===c.c?'on':''}" data-c="${c.c}">${esc(c.n)}</span>`).join('')}</div>
+   ${slider(DEPTH,A.int[DEPTH.c])}
+   <label>个人喜好·外观（内部参考）</label>${scale('外观喜好',9,A.hed['外观喜好'],HED_LAB)}</div>
+  <div class="card"><h3>二、闻</h3>
+   ${slider(CORE[4],A.int[CORE[4].c])}
+   <label>闻到的主要香气（最多 3 个，按明显程度先后点）</label>
+   <div class="picked" id="aPicked"></div>
+   <input type="text" class="aroma-search" id="aQ" placeholder="搜香气，如 茉莉、桃、焦糖、奶">
+   <div id="aList" style="max-height:220px;overflow:auto"></div>
+   <label>个人喜好·香气（内部参考）</label>${scale('香气喜好',9,A.hed['香气喜好'],HED_LAB)}</div>
+  <div class="card"><h3>三、尝</h3>
+   ${[CORE[0],CORE[1],CORE[2],CORE[3]].map(a=>slider(a,A.int[a.c])).join('')}
+   ${ex.map(a=>slider(a,A.int[a.c])).join('')}
+   ${[CORE[5],CORE[6],CORE[7]].map(a=>slider(a,A.int[a.c])).join('')}
+   <label>个人喜好·口味（内部参考）</label>${scale('口味喜好',9,A.hed['口味喜好'],HED_LAB)}</div>
+  <div class="card"><h3>四、对照美国目标（用来调用量）</h3><p class="mute" style="margin:0">不是问你喜不喜欢，而是对照美国目标口味：不足、刚好还是过了。${P.pub.g?'目标：'+esc(P.pub.g):''}</p>
+   ${JAR.map(j=>`<label>${j==='主风味浓度'?(main?main.k.replace('强度','')+'浓度':'主风味浓度'):j}</label>${scale('J'+j,5,A.jar[j],JAR_LAB)}`).join('')}</div>
+  <div class="card"><h3>五、整体</h3>
+   <label>个人喜好·整体（内部参考）</label>${scale('整体喜好',9,A.hed['整体喜好'],HED_LAB)}
+   <label>如果门店有卖，你会买吗</label>${scale('BUY',5,A.buy,BUY_LAB)}
+   <label>评语（哪里好、哪里要改，越具体越好）</label><textarea id="note">${esc(A.note)}</textarea></div>
+  <div class="bar"><button class="ghost" id="bPrev" ${P.i?'':'disabled'}>上一杯</button><button id="bNext">${P.i<N-1?'下一杯':'检查并提交'}</button></div>`;
+  window.scrollTo(0,0);
+  document.querySelectorAll('.attr').forEach(el=>{const r=el.querySelector('input');r.addEventListener('input',()=>{el.classList.remove('untouched','missing');el.querySelector('.val').textContent=r.value;A.int[el.dataset.c]=+r.value;saveDraft()})});
+  document.querySelectorAll('.scale[data-id]').forEach(sc=>sc.querySelectorAll('div').forEach(d=>d.onclick=()=>{
+    sc.querySelectorAll('div').forEach(x=>x.classList.remove('on'));d.classList.add('on');sc.classList.remove('missing');const id=sc.dataset.id,v=+d.dataset.v;
+    if(id==='BUY')A.buy=v;else if(id[0]==='J')A.jar[id.slice(1)]=v;else A.hed[id]=v;saveDraft()}));
+  document.querySelectorAll('#cColor .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#cColor .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');A.color=c.dataset.c;$('#cColor').classList.remove('missing');saveDraft()});
+  $('#note').oninput=e=>{A.note=e.target.value;saveDraft()};
+  // 香气选择
+  function drawPicked(){
+    $('#aPicked').innerHTML=A.aroma.map((x,i)=>{const n=N5AROMA.find(a=>a.c===x.c);return `<div class="attr ${x.v===undefined?'untouched':''}" data-ai="${i}"><div class="top"><span class="name">${i+1}. ${esc(n.n)}<span class="code">${x.c}</span> <span style="color:var(--warn);cursor:pointer" data-rm="${i}">✕</span></span><span class="val">${x.v===undefined?'未打分':x.v}</span></div><input type="range" min="0" max="10" step="0.5" value="${x.v??5}"><div class="anch"><span>0 无</span><span>5 明显</span><span>10 扑鼻、主导</span></div></div>`}).join('')||'<span class="mute">还没选</span>';
+    $('#aPicked').querySelectorAll('[data-ai]').forEach(el=>{const i=+el.dataset.ai,r=el.querySelector('input');r.oninput=()=>{A.aroma[i].v=+r.value;el.classList.remove('untouched');el.querySelector('.val').textContent=r.value;saveDraft()}});
+    $('#aPicked').querySelectorAll('[data-rm]').forEach(x=>x.onclick=()=>{A.aroma.splice(+x.dataset.rm,1);saveDraft();drawPicked();drawList()});
+  }
+  function drawList(){
+    const q=$('#aQ').value.trim();let L=N5AROMA;if(q)L=L.filter(a=>a.n.includes(q)||a.f.includes(q));
+    let html='',fam='';L.forEach(a=>{if(a.f!==fam){if(fam)html+='</div>';fam=a.f;html+=`<div class="fam">${esc(fam)}</div><div class="chips">`}html+=`<span class="chip ${A.aroma.some(x=>x.c===a.c)?'on':''}" data-c="${a.c}">${esc(a.n)}</span>`});if(fam)html+='</div>';
+    $('#aList').innerHTML=html||'<span class="mute">没有这个词，换个说法，或写在评语里</span>';
+    $('#aList').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const k=A.aroma.findIndex(x=>x.c===c.dataset.c);if(k>=0)A.aroma.splice(k,1);else{if(A.aroma.length>=3){toast('最多 3 个');return}A.aroma.push({c:c.dataset.c})}saveDraft();drawPicked();drawList()});
+  }
+  $('#aQ').oninput=drawList;drawPicked();drawList();
+  $('#bPrev').onclick=()=>{P.i--;sampleView()};
+  $('#bNext').onclick=()=>{
+    const miss=[...document.querySelectorAll('.attr.untouched')];
+    document.querySelectorAll('.scale[data-id]').forEach(sc=>{if(!sc.querySelector('.on'))miss.push(sc)});
+    if(!A.color)miss.unshift($('#cColor'));
+    if(miss.length){miss.forEach(m=>m.classList.add('missing'));miss[0].scrollIntoView({behavior:'smooth',block:'center'});toast(`还有 ${miss.length} 项没打`);return}
+    if(P.i<N-1){P.i++;sampleView()}else review();
+  };
+}
+function review(){
+  $('#app').innerHTML=`<div class="card"><h2>检查一下</h2><table><tr><th>顺序</th><th>盲码</th><th>整体喜好</th><th>甜</th><th>酸</th></tr>
+  ${P.order.map((s,i)=>`<tr><td>${i+1}</td><td>${s.b}</td><td>${P.ans[i].hed['整体喜好']}</td><td>${P.ans[i].int['S-TA-01']}</td><td>${P.ans[i].int['S-TA-02']}</td></tr>`).join('')}</table>
+  <p class="mute">要改的话点“返回修改”。提交后不能再改。</p></div>
+  <div class="bar"><button class="ghost" id="bBk">返回修改</button><button id="bSub">提交</button></div>`;
+  $('#bBk').onclick=()=>{P.i=P.order.length-1;sampleView()};
+  $('#bSub').onclick=submit;
+}
+async function submit(){
+  const cn=ts('Asia/Shanghai'),la=ts('America/Los_Angeles');
+  const rows=P.order.map((s,i)=>{const A=P.ans[i];const r={};COLS_EVAL.forEach(c=>r[c]='');
+    Object.assign(r,{'提交时间(北京)':cn,'提交时间(加州)':la,'场次编号':P.pub.s,'品评日期':P.pub.d,'品评人':P.name,'座位号':P.seat,'盲码':s.b,'品尝顺序':i+1,'品类标签':(s.t||[]).join('、'),'温度':s.tp||''});
+    allIntensity().forEach(a=>{if(A.int[a.c]!==undefined&&(CORE.includes(a)||a===DEPTH||attrsFor(s).some(x=>x.c===a.c)))r[a.k+' '+a.c]=A.int[a.c]});
+    const col=N5COLOR.find(c=>c.c===A.color);r['颜色编码']=A.color;r['颜色']=col?col.n:'';
+    A.aroma.forEach((x,j)=>{const n=N5AROMA.find(a=>a.c===x.c);r[`香气${j+1}编码`]=x.c;r[`香气${j+1}`]=n.n;r[`香气${j+1}强度`]=x.v});
+    HED.forEach(h=>r[hedCol(h[0])]=A.hed[h[0]]);JAR.forEach(j=>r[jarCol(j)]=A.jar[j]);
+    r['购买意向(1-5)']=A.buy;r['评语']=A.note;r['记录编号']=rid();r['页面版本']=VERSION;return r});
+  const miss=P.ans.some(A=>A.aroma.some(x=>x.v===undefined));if(miss){toast('有香气还没打强度，请返回补上');return}
+  $('#bSub').disabled=true;$('#bSub').textContent='正在提交…';
+  let ok=true;try{await post('品评记录',rows)}catch(e){ok=false;queue('品评记录',rows)}
+  LS.set('og_done_'+P.pub.s,P.name);try{localStorage.removeItem('og_draft_'+P.pub.s+'_'+P.name)}catch(e){}
+  $('#app').innerHTML=ok?`<div class="card"><h2>✓ 已提交</h2><p>谢谢 ${esc(P.name)}，${rows.length} 杯的打分已保存。</p></div>`:
+  `<div class="card warn"><h2>网络没连上</h2><p>打分已存在这台手机里，不会丢。连上网后重新打开这个链接，点首页“现在补交”。</p><button class="ghost" id="bRe">现在重试</button></div>`;
+  $('.bar')?.remove();
+  if(!ok)$('#bRe').onclick=async()=>{const n=await flushQueue();toast(n?'已补交':'还是没连上');if(n)$('#app').innerHTML='<div class="card"><h2>✓ 已提交</h2></div>'};
+}
+route();
+if(!new URLSearchParams(location.search).get('p'))flushQueue().then(n=>{if(n){toast(`已自动补交 ${n} 条`);home()}});
+</script>
+</body>
+</html>

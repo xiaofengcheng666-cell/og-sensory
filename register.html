@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OG 团队登记</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1f2a24;--mute:#6b746e;--line:#e3e0d8;--acc:#2f6b4f;--acc2:#e8f1ec;--warn:#b5462f;--chip:#f0eee8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;-webkit-text-size-adjust:100%}
+header{background:var(--acc);color:#fff;padding:14px 16px}
+header b{font-size:17px}header small{display:block;opacity:.85;font-size:13px}
+main{max-width:640px;margin:0 auto;padding:12px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+label{display:block;font-size:14px;color:var(--mute);margin:12px 0 4px}
+label b{color:var(--warn);font-weight:400}
+input[type=text],input[type=email]{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:7px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:14px;cursor:pointer;user-select:none}
+.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.hint{font-size:13px;margin-top:4px;color:var(--mute)}.hint.bad{color:var(--warn)}.hint.ok{color:var(--acc)}
+.missing{outline:2px solid var(--warn);outline-offset:4px;border-radius:8px}
+.agree{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--ink);margin-top:14px}
+.agree input{margin-top:4px;width:18px;height:18px;flex:none}
+button{font:inherit;border:0;border-radius:10px;padding:15px;background:var(--acc);color:#fff;cursor:pointer;width:100%;font-size:17px;margin-top:16px}
+button:disabled{opacity:.45}
+.toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1f2a24;color:#fff;padding:9px 14px;border-radius:8px;font-size:14px;z-index:9;display:none;max-width:90vw}
+.done{text-align:center;padding:30px 10px}.done b{font-size:20px;color:var(--acc)}
+</style>
+</head>
+<body>
+<header><b>OakGenius 团队登记</b><small>登记后统一开团队应用账号，不需要填密码</small></header>
+<main>
+<div class="card" id="form">
+  <label>姓名（中文或英文）<b>*</b></label>
+  <input type="text" id="fName" maxlength="40">
+
+  <label>英文用户名 <b>*</b></label>
+  <input type="text" id="fUser" maxlength="20" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="如 amy.wang">
+  <div class="hint" id="uHint">小写字母开头，2–20 位，只能用小写字母、数字和 . _ -，例如 amy.wang</div>
+
+  <label>所在地 <b>*</b></label>
+  <div class="chips" data-one="loc"><span class="chip">美国</span><span class="chip">中国</span></div>
+
+  <label>所属 <b>*</b></label>
+  <div class="chips" data-one="org"><span class="chip">OakGenius 团队</span><span class="chip">外包公司</span></div>
+  <div id="coWrap" style="display:none"><label>外包公司名称 <b>*</b></label><input type="text" id="fCo" maxlength="60"></div>
+
+  <label>角色（可多选）<b>*</b></label>
+  <div class="chips" data-many="role"><span class="chip">美国市场</span><span class="chip">美国管理</span><span class="chip">中国外包测试（试做和品评）</span><span class="chip">深圳测试店运营</span></div>
+
+  <label>工作邮箱（选填，用于找回密码）</label>
+  <input type="email" id="fMail" maxlength="80" autocapitalize="off">
+
+  <label>是否已与 OakGenius 签保密协议 <b>*</b></label>
+  <div class="chips" data-one="nda"><span class="chip">是</span><span class="chip">否</span><span class="chip">不清楚</span></div>
+  <div class="hint">只作登记，账号权限由管理方确定。</div>
+
+  <label class="agree" id="agWrap"><input type="checkbox" id="fAgree"><span>我同意我的姓名、用户名和角色存储在 OakGenius 的 Google 表格和香港服务器，仅用于团队应用账号。</span></label>
+
+  <button id="go">提交登记</button>
+</div>
+<div class="card done" id="ok" style="display:none"><b>✓ 已登记</b><p id="okMsg"></p><p class="hint">账号开好后会统一发初始密码。如用户名和别人重复，我们会联系你换一个。</p></div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const SHEETDB='https://sheetdb.io/api/v1/22c9btd17ewe2';
+const VERSION='reg-v1.0-261025';
+const UNAME=/^[a-z][a-z0-9._-]{1,19}$/;
+const $=s=>document.querySelector(s);
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',3500)}
+function ts(tz){return new Date().toLocaleString('zh-CN',{timeZone:tz,hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).replace(/\//g,'-')}
+const pick={loc:'',org:'',nda:'',role:[]};
+document.querySelectorAll('[data-one]').forEach(g=>g.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{g.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');pick[g.dataset.one]=c.textContent;g.classList.remove('missing');if(g.dataset.one==='org')$('#coWrap').style.display=c.textContent==='外包公司'?'block':'none'}));
+document.querySelectorAll('[data-many]').forEach(g=>g.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{c.classList.toggle('on');pick.role=[...g.querySelectorAll('.chip.on')].map(x=>x.textContent);g.classList.remove('missing')}));
+const fU=$('#fUser'),uH=$('#uHint');
+fU.oninput=()=>{const v=fU.value=fU.value.toLowerCase().replace(/\s/g,'');if(!v){uH.className='hint';uH.textContent='小写字母开头，2–20 位，只能用小写字母、数字和 . _ -，例如 amy.wang';return}
+  if(UNAME.test(v)){uH.className='hint ok';uH.textContent='✓ 可以使用（以后登录团队应用就用它）'}else{uH.className='hint bad';uH.textContent=/^[a-z]/.test(v)?'只能用小写字母、数字和 . _ -，2–20 位，例如 amy.wang':'要以小写字母开头，例如 amy.wang'}};
+let used=[];try{used=JSON.parse(localStorage.getItem('og_reg')||'[]')}catch(e){}
+$('#go').onclick=async()=>{
+  document.querySelectorAll('.missing').forEach(x=>x.classList.remove('missing'));
+  const miss=[];const mark=(el,t)=>{el.classList.add('missing');miss.push(t)};
+  const name=$('#fName').value.trim(),user=fU.value.trim(),co=$('#fCo').value.trim(),mail=$('#fMail').value.trim();
+  if(!name)mark($('#fName'),'姓名');
+  if(!UNAME.test(user))mark(fU,'英文用户名');
+  if(!pick.loc)mark($('[data-one=loc]'),'所在地');
+  if(!pick.org)mark($('[data-one=org]'),'所属');
+  if(pick.org==='外包公司'&&!co)mark($('#fCo'),'外包公司名称');
+  if(!pick.role.length)mark($('[data-many=role]'),'角色');
+  if(mail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail))mark($('#fMail'),'邮箱格式');
+  if(!pick.nda)mark($('[data-one=nda]'),'保密协议');
+  if(!$('#fAgree').checked)mark($('#agWrap'),'同意勾选');
+  if(miss.length){toast('还要填：'+miss.join('、'));document.querySelector('.missing').scrollIntoView({behavior:'smooth',block:'center'});return}
+  if(used.includes(user)){mark(fU,'');uH.className='hint bad';uH.textContent='这个用户名在本机已经登记过，请换一个';toast('用户名已登记过，请换一个');return}
+  const row={'提交时间(北京)':ts('Asia/Shanghai'),'提交时间(加州)':ts('America/Los_Angeles'),'姓名':name,'用户名':user,'所在地':pick.loc,'所属':pick.org,'外包公司名称':pick.org==='外包公司'?co:'','角色':pick.role.join('、'),'工作邮箱':mail,'是否已签保密协议':pick.nda,'同意存储':'同意','页面版本':VERSION};
+  const b=$('#go');b.disabled=true;b.textContent='提交中…';
+  try{const r=await fetch(SHEETDB+'?sheet='+encodeURIComponent('团队名单'),{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({data:[row]})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    used.push(user);try{localStorage.setItem('og_reg',JSON.stringify(used))}catch(e){}
+    $('#form').style.display='none';$('#ok').style.display='block';$('#okMsg').textContent=name+'，你的用户名是 '+user+'。';
+  }catch(e){toast('提交失败，请检查网络后再点一次（'+e.message+'）');b.disabled=false;b.textContent='提交登记'}
+};
+</script>
+</body>
+</html>
